@@ -8,8 +8,24 @@ Number = (int, float)     # A Scheme Number is implemented as a Python int or fl
 Atom   = (Symbol, Number) # A Scheme Atom is a Symbol or Number
 List   = list             # A Scheme List is implemented as a Python list
 Exp    = (Atom, List)     # A Scheme expression is an Atom or List
-Env    = dict             # A Scheme environment (defined below)
-                          # is a mapping of {variable: value}
+
+class Env(dict):
+    "An environment: a dict of {'var': val} pairs, with an outer Env."
+    def __init__(self, parms=(), args=(), outer=None):
+        self.update(zip(parms, args))
+        self.outer = outer
+    def find(self, var):
+        "Find the innermost Env where var appears."
+        return self if (var in self) else self.outer.find(var)
+
+class Procedure(object):
+    "A user-defined Scheme procedure."
+    def __init__(self, parms, body, env):
+        self.parms, self.body, self.env = parms, body, env
+    def __call__(self, *args):
+        return eval(self.body, Env(self.parms, args, self.env))
+
+global_env = standard_env()
 
 def tokenize(chars: str) -> list:
     "Convert a string of characters into a list of tokens."
@@ -79,30 +95,42 @@ def standard_env() -> Env:
 
 global_env = standard_env()
 
-def eval(x: Exp, env=global_env) -> Exp:
+def eval(x, env=global_env):
     "Evaluate an expression in an environment."
-    if isinstance(x, Symbol):        # variable reference
-        return env[x]
-    elif isinstance(x, Number):  # constant number
+    if isinstance(x, Symbol):    # variable reference
+        return env.find(x)[x]
+    elif not isinstance(x, List):# constant
         return x
-    elif x[0] == 'if':               # conditional
-        (_, test, conseq, alt) = x
+    op, *args = x
+    if op == 'quote':            # quotation
+        return args[0]
+    elif op == 'if':             # conditional
+        (test, conseq, alt) = args
         exp = (conseq if eval(test, env) else alt)
         return eval(exp, env)
-    elif x[0] == 'define':           # definition
-        (_, symbol, exp) = x
+    elif op == 'define':         # definition
+        (symbol, exp) = args
         env[symbol] = eval(exp, env)
-    else:                            # procedure call
-        proc = eval(x[0], env)
-        args = [eval(arg, env) for arg in x[1:]]
-        return proc(*args)
+    elif op == 'set!':           # assignment
+        (symbol, exp) = args
+        env.find(symbol)[symbol] = eval(exp, env)
+    elif op == 'lambda':         # procedure
+        (parms, body) = args
+        return Procedure(parms, body, env)
+    else:                        # procedure call
+        proc = eval(op, env)
+        vals = [eval(arg, env) for arg in args]
+        return proc(*vals)
 
 def repl(prompt='lis.py> '):
     "A prompt-read-eval-print loop."
     while True:
-        val = eval(parse(input(prompt)))
-        if val is not None:
-            print(schemestr(val))
+        try:
+            val = eval(parse(input(prompt)))
+            if val is not None:
+                print(schemestr(val))
+        except:
+            print("Eval error!")
 
 def schemestr(exp):
     "Convert a Python object back into a Scheme-readable string."
