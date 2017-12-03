@@ -9,7 +9,7 @@ total = 0
 for row in rows:
     total += (max(row) - min(row))
 
-print(total)
+print total
 
 # part 2
 total = 0
@@ -24,4 +24,4 @@ for row in rows:
                 total += y / x
                 break
 
-print(total)
+print total
