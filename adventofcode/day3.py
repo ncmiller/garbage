@@ -1,21 +1,3 @@
-"""read lines from stdin, split lines on whitespace"""
-# import fileinput
-# lines = []
-# for line in fileinput.input():
-#     lines.append([int(x) for x in line.split()])
-
-
-"""read single number from stdin"""
-# num = map(int, raw_input())
-
-"""read one char at a time from named file"""
-# with open("dayX_input.txt") as f:
-#     for line in f:
-#         for ch in line:
-#             if ch != '\n':
-#                 print ch
-
-
 """ math-only solution to part 1 (with assist from REPL) """
 N = 591
 
