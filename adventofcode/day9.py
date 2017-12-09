@@ -1,23 +1,32 @@
-"""read lines from stdin, split lines on whitespace"""
-# import fileinput
-# lines = []
-# for line in fileinput.input():
-#     lines.append([int(x) for x in line.split()])
+with open("day9_input.txt") as f:
+    chars = f.read()
 
-"""read one number per line"""
-# import fileinput
-# lines = []
-# for line in fileinput.input():
-#     lines.append(int(line))
+# chars = "{{<a!>},{<a!>},{<a!>},{<ab>}}"
+# chars = "{{{},{},{{}}}}"
+skip = False
+depth = 0
+score = 0
+in_garbage = False
+garbage_chars = 0
 
-"""read single number from stdin"""
-# num = map(int, raw_input())
+for c in chars:
+    if skip:
+        skip = False
+    elif in_garbage:
+        if c == "!":
+            skip = True
+        elif c == ">":
+            in_garbage = False
+        else:
+            garbage_chars += 1
+    else:
+        if c == "{":
+            depth += 1
+        elif c == "<":
+            in_garbage = True
+        elif c == "}":
+            score += depth
+            depth -= 1
 
-"""read one char at a time from named file"""
-# with open("dayX_input.txt") as f:
-#     for line in f:
-#         for ch in line:
-#             if ch != '\n':
-#                 print ch
-
-
+print score
+print garbage_chars
