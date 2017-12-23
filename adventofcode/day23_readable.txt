@@ -1,0 +1,39 @@
+a = 1
+b = 109900 // start
+c = 126900 // end
+loop:
+	f = 1
+	d = 2
+
+	do
+		e = 2
+
+		// f = 0  when d * e - b == 0
+		// b=109900: 
+		//	d=2,e=54950
+		//	d=4,e=27475
+		// f == 0 when b is composite
+		do:
+			g = d
+			g *= e
+			g -= b
+			if g == 0:
+				f = 0
+			e += 1
+			g = e
+			g -= b
+		while g != 0
+
+		d += 1
+		g = d
+		g -= b
+	while g != 0
+
+	if f == 0:
+		h += 1
+	g = b
+	g -= c
+	if g == 0:
+		exit
+	b += 17
+goto loop
