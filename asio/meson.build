@@ -13,8 +13,15 @@ boost_dep = dependency(
     ]
 )
 
-executable('asio',
-    'main.cpp',
+executable('daytime_client',
+    'daytime_client.cpp',
+    dependencies : [
+        boost_dep,
+    ]
+)
+
+executable('daytime_server',
+    'daytime_server.cpp',
     dependencies : [
         boost_dep,
     ]
