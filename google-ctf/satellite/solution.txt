@@ -1,0 +1,11 @@
+1. Unzip
+2. Open pdf. Has image with word "osmium". This is the name of the satellite.
+3. chmod +x init_sat
+4. ./init_sat
+5. Enter "osmium"
+6. Print config data. Follow link to google doc.
+7. Decode: echo <string> | base64 -d
+8. Instructions indicate to use wireshark.
+9. netstat to see port
+10. sudo tcpdump -A port 1337
+11. Print config data. CTF flag is passed in the clear: CTF{4efcc72090af28fd33a2118985541f92e793477f}
