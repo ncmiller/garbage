@@ -7,64 +7,6 @@ def parse_line(line):
     vals = list(map(int, [v for v in vals.split(',')]))
     return springs, vals
 
-def matches(springs, vals):
-    computed_vals = []
-    qs = 0
-    for s in springs:
-        if s == 1:
-            qs += 1
-        else:
-            if qs != 0:
-                computed_vals.append(qs)
-                qs = 0
-    if qs != 0:
-        computed_vals.append(qs)
-    # print(springs, computed_vals, vals)
-    return computed_vals == vals
-
-
-def fill(springs, num):
-    filled = springs[:]
-    numbit = 0
-    for i, s in enumerate(springs):
-        if s == 2:
-            nextbit = ((1 << numbit) & num) >> numbit
-            # print('set bit {} to {}'.format(i, nextbit))
-            filled[i] = nextbit
-            numbit += 1
-    return filled
-
-bit_count_memo = dict()
-def bit_count(num):
-    if num in bit_count_memo:
-        return bit_count_memo[num]
-    else:
-        x = bin(num).count('1')
-        bit_count_memo[num] = x
-        return x
-
-def part1(lines):
-    total_ways = 0
-    for il, l in enumerate(lines):
-        # print('Progress: ', il / len(lines))
-        ways = 0
-        springs, vals = l
-        vals_num_ones = sum(vals)
-        springs_num_ones = sum([1 for s in springs if s == 1])
-
-        qs = sum([1 for s in springs if s == 2])
-        for i in range(2**qs):
-            if bit_count(i) != (vals_num_ones - springs_num_ones):
-                continue
-            filled = fill(springs, i)
-            # print(filled)
-            if matches(filled, vals):
-                ways += 1
-
-        # print(l, ways)
-        total_ways += ways
-    return total_ways
-
 def expand(lines):
     expanded = []
     for l in lines:
@@ -75,16 +17,92 @@ def expand(lines):
             new_springs.append(2)
             new_springs += springs[:]
             new_vals += vals[:]
-        # print(springs, new_springs)
-        # print(vals, new_vals)
         expanded.append((new_springs, new_vals))
     return expanded
 
+def process(springs, goal, in_group):
+    new_goal = goal[:]
+    i = 0
+    while i < len(springs):
+        c = springs[i]
+        if c == 2:
+            break
+        elif c == 1:
+            in_group = True
+            if not new_goal or new_goal[0] == 0: # underflow of goal
+                # print('underflow')
+                return (False, springs, goal, False)
+            new_goal[0] -= 1
+            pass
+        else: # c == 0
+            if in_group:
+                in_group = False
+                if new_goal[0] != 0: # didn't finish this group in goal
+                    # print('didn\'t finish')
+                    return (False, springs, goal, False)
+                new_goal = new_goal[1:]
+
+        i += 1
+    return (True, springs[i:], new_goal, in_group)
+
+memo = {}
+def arrangements(springs, goal, in_group):
+    key = (tuple(springs), tuple(goal), in_group)
+    # print(springs, goal, in_group)
+
+    if key in memo:
+        return memo[key]
+
+    # Process characters from left until ? encountered,
+    # updating springs and goal in the process
+    #
+    # If processing is valid (consistent with goal), then
+    # returns (True, new_springs, new_goal).
+    #
+    # Otherwise, returns (False, springs, goal).
+    is_valid, new_springs, new_goal, new_in_group = process(springs, goal, in_group)
+    # print((is_valid, new_springs, new_goal, new_in_group))
+    if not is_valid:
+        memo[key] = 0
+        return 0
+
+    # if new springs and goal empty, then it's a completed arrangement
+    if not new_springs and not new_goal:
+        # print('valid complete', springs, goal, in_group)
+        memo[key] = 1
+        return 1
+
+    # if one empty but not the other, then it's an invalid springs
+    if not new_goal and new_springs:
+        if 1 in new_springs:
+            # print('invalid, underflow goal in future')
+            memo[key] = 0
+            return 0
+        else:
+            # print('valid, assume rest are 0s')
+            memo[key] = 1
+            return 1
+    elif not new_springs and new_goal:
+        # print('invalid, springs empty and goal remaining')
+        memo[key] = 0
+        return 0
+
+    a0 = arrangements([0] + new_springs[1:], new_goal, new_in_group)
+    a1 = arrangements([1] + new_springs[1:], new_goal, new_in_group)
+    answer = a0 + a1
+    # print('valid recurse', springs, goal, answer, in_group)
+    memo[key] = answer
+    return answer
+
+def part1(lines):
+    total = 0
+    for row,goal in lines:
+        r = row + [0] # add a . at the end, to normalize handling of last group
+        val = arrangements(r, goal, False)
+        # print(r, val)
+        total += val
+    return total
 
 lines = [parse_line(line[:-1]) for line in fileinput.input()]
-# print(lines)
-# print(part1(lines))
-expanded = expand(lines)
-# for e in expanded:
-#     print(e)
-print(part1(expanded))
+print(part1(lines))
+print(part1(expand(lines)))
