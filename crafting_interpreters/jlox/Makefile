@@ -18,4 +18,4 @@ clean:
 	rm $(OUT_DIR)/*.class
 
 run: $(CLS)
-	@java -classpath $(OUT_DIR) Main
+	@java -classpath $(OUT_DIR) Lox
