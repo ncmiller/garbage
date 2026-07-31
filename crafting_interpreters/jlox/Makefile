@@ -1,6 +1,7 @@
 SRC_DIR := src
 OUT_DIR := out
 LOX_SRC_DIR := $(SRC_DIR)/com/craftinginterpreters/lox
+LOX_TEST_DIR := $(SRC_DIR)/com/craftinginterpreters/test
 SRCS := $(shell find $(SRC_DIR) -name "*.java")
 CLS := $(SRCS:$(SRC_DIR)/%.java=$(OUT_DIR)/%.class)
 JC := javac
@@ -10,7 +11,7 @@ GENERATE_AST_CLASS := com.craftinginterpreters.tool.GenerateAst
 
 .SUFFIXES: .java
 
-.PHONY: all clean run
+.PHONY: all clean run run_test generate_ast
 
 all: $(CLS)
 
@@ -22,6 +23,9 @@ clean:
 
 run: $(CLS)
 	@java -classpath $(OUT_DIR) $(MAIN_CLASS)
+
+run_test: $(CLS)
+	@java -classpath $(OUT_DIR) $(MAIN_CLASS) $(LOX_TEST_DIR)/test.lox
 
 generate_ast: $(CLS)
 	@java -classpath $(OUT_DIR) $(GENERATE_AST_CLASS) $(LOX_SRC_DIR)
