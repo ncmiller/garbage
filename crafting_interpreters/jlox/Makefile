@@ -24,7 +24,7 @@ clean:
 run: $(CLS)
 	@java -classpath $(OUT_DIR) $(MAIN_CLASS)
 
-run_test: $(CLS)
+test: $(CLS)
 	@java -classpath $(OUT_DIR) $(MAIN_CLASS) $(LOX_TEST_DIR)/test.lox
 
 generate_ast: $(CLS)
