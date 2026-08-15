@@ -11,7 +11,7 @@ GENERATE_AST_CLASS := com.craftinginterpreters.tool.GenerateAst
 
 .SUFFIXES: .java
 
-.PHONY: all clean run run_test generate_ast
+.PHONY: all clean run test generate_ast
 
 all: $(CLS)
 
@@ -27,5 +27,5 @@ run: $(CLS)
 test: $(CLS)
 	@java -classpath $(OUT_DIR) $(MAIN_CLASS) $(LOX_TEST_DIR)/test.lox
 
-generate_ast: $(CLS)
+generate_ast: $(OUT_DIR)/com/craftinginterpreters/tool/GenerateAst.class
 	@java -classpath $(OUT_DIR) $(GENERATE_AST_CLASS) $(LOX_SRC_DIR)
