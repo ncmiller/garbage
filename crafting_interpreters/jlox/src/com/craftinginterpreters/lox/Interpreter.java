@@ -130,7 +130,11 @@ class Interpreter implements Expr.Visitor<Object>,
 
         // If user enters an expression, automatically print it.
         // This is effectively an implicit print statement.
-        System.out.println(stringify(value));
+        //
+        // This makes the REPL nicer to use, but may result in
+        // extraneous prints when running a file. Leaving it
+        // commented out for now.
+        // System.out.println(stringify(value));
 
         return null;
     }
@@ -160,6 +164,14 @@ class Interpreter implements Expr.Visitor<Object>,
         }
 
         environment.define(stmt.name.lexeme, value);
+        return null;
+    }
+
+    @Override
+    public Void visitWhileStmt(Stmt.While stmt) {
+        while (isTruthy(evaluate(stmt.condition))) {
+            execute(stmt.body);
+        }
         return null;
     }
 

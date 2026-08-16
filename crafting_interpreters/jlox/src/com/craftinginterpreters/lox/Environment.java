@@ -16,6 +16,7 @@ class Environment {
     }
 
     Object get(Token name) {
+        // System.out.println("get " + name.lexeme);
         if (values.containsKey(name.lexeme)) {
             Object value = values.get(name.lexeme);
             if (value != null) {
@@ -33,6 +34,7 @@ class Environment {
     }
 
     void assign(Token name, Object value) {
+        // System.out.println("assign " + name.lexeme + " = " + value);
         if (values.containsKey(name.lexeme)) {
             values.put(name.lexeme, value);
             return;
@@ -40,13 +42,15 @@ class Environment {
 
         if (enclosing != null) {
             enclosing.assign(name, value);
+            return;
         }
 
         throw new RuntimeError(name,
-                "Undefined variable '" + name.lexeme + ";.");
+                "Undefined variable '" + name.lexeme + "'.");
     }
 
     void define(String name, Object value) {
+        // System.out.println("define " + name + " = " + value);
         values.put(name, value);
     }
 }
